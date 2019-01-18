@@ -46,7 +46,9 @@ class RevealJSMarkdownReader(BaseReader):
             ],
         )
 
-        return (revealjs_content, metadata)
+        # Patch revealjs_content to convert 'back' "{" and "}"
+
+        return (revealjs_content.replace('%7B', '{').replace('%7D','}'), metadata)
 
 
 def add_reader(readers):
