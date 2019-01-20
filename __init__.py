@@ -1,9 +1,7 @@
-import os
+import subprocess
 
-from markdown import Markdown
 from pelican import signals
 from pelican.readers import BaseReader, MarkdownReader
-import pypandoc
 
 
 class RevealJSMarkdownReader(BaseReader):
@@ -25,28 +23,38 @@ class RevealJSMarkdownReader(BaseReader):
         # https://github.com/danielfrg/pelican-ipynb/blob/master/markup.py#L62
         reader = MarkdownReader(self.settings)
         md_content, metadata = reader.read(filename)
-        metadata["template"] = "blank"
 
         # TODO: using the markdown reader converts the file contents to HTML,
         # but we just want plain text because pandoc should be converting it
         # instead. The trouble is, we also want to get the metadata
 
-        md_converter = Markdown(**self.settings["MARKDOWN"])
-        md_converter.convertFile(filename, output=os.devnull)
+        commandextra = ""
 
-        md_content = "\n".join(md_converter.lines)
-        # metadata = getattr(md_converter, "Meta", {})
+        if 'theme' in metadata:
+            commandextra = "--variable theme=%s" % metadata['theme']
 
-        revealjs_content = pypandoc.convert_text(md_content, to="revealjs",
-            format="md",
-            extra_args=[
-                "-s",
-                "-V", "revealjs-url=https://revealjs.com",
-                # "--slide-level", "2",
-            ],
-        )
+        if 'revealoptions' in metadata:
+            if 'transition' in metadata['revealoptions']:
+                commandextra = commandextra + " --variable transition=%s" % metadata['revealoptions']['transition']
 
-        return (revealjs_content, metadata)
+        command  = "pandoc --to revealjs -f markdown %s %s" % (filename, commandextra)
+
+        # Define template for Pelican
+        metadata["template"] = "blank"
+
+        p = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+        try:
+            stdout, stderr = p.communicate(str.encode('utf8'))
+        except OSError:
+            raise RuntimeError('Pandoc died with exitcode "%s" during conversion.' % p.returncode)
+
+        revealjs_content = stdout.decode('utf8')
+
+        # Patch revealjs_content to convert 'back' "{" and "}"
+        returntext = revealjs_content.replace('%7B', '{').replace('%7D','}')
+
+        return returntext, metadata
 
 
 def add_reader(readers):
