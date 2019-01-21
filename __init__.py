@@ -40,7 +40,7 @@ class RevealJSMarkdownReader(BaseReader):
         command  = "pandoc --to revealjs -f markdown %s %s" % (filename, commandextra)
 
         # Define template for Pelican
-        metadata["template"] = "blank"
+        metadata["template"] = "revealmd"
 
         p = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
