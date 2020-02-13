@@ -400,15 +400,23 @@
     <div class="reveal">
         <div class="slides">
             <section id="title-slide">
-                <h1 class="title">
+                <h2 class="title">
                     {{ article.title }}
-                </h1>
+                </h2>
                 <p class="author">
                     {{ article.author }}
                 </p>
                 <p class="date">
                     {{ article.date }}
                 </p>
+                {% if article.translations %}
+                    <p id="list-of-translations">
+                    This post is also available in:
+                        {% for translation in article.translations|sort(attribute = 'lang') %}
+                        <a href="{{ SITEURL }}/{{ translation.url }}">{{ translation.lang }}</a>{% if loop.index0 + 2 == loop.length %} and{% elif not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                {% endif %}
             </section>
 
             {{ article.content }}
