@@ -4,5 +4,14 @@
   "maxRequests": 5,
   "ignoreDigits": true,
   "lang": "en",
-  "dictionary": ["revealmd", "reveal-md", "markdown", "revealjs"]
+  "dictionary": [
+    "revealmd",
+    "reveal-md",
+    "markdown",
+    "revealjs",
+    "releaserc",
+    "repo",
+    "cdn",
+    "uri"
+  ]
 }
