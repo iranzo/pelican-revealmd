@@ -1,6 +1,6 @@
 {
   "branch": "master",
-  "repositoryUrl": "git@github.com:iranzo/gh-action-runpublish.git",
+  "repositoryUrl": "git@github.com:iranzo/pelican-revealmd.git",
   "tagFormat": "${version}",
   "plugins": [
     "@semantic-release/commit-analyzer",
