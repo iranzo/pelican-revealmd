@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import subprocess
 
 from pelican import signals
@@ -9,6 +10,7 @@ class RevealJSMarkdownReader(BaseReader):
 
     http://docs.getpelican.com/en/stable/plugins.html#how-to-create-a-new-reader
     """
+
     enabled = True
     file_extensions = ["revealjs"]
 
@@ -20,7 +22,7 @@ class RevealJSMarkdownReader(BaseReader):
         """
 
         # TODO: use markdown reader to parse the reveal.js markdown
-        # https://github.com/danielfrg/pelican-ipynb/blob/master/markup.py#L62
+        # github.com/danielfrg/pelican-ipynb/blob/master/markup.py#L62
         reader = MarkdownReader(self.settings)
         md_content, metadata = reader.read(filename)
 
@@ -28,31 +30,40 @@ class RevealJSMarkdownReader(BaseReader):
         # but we just want plain text because pandoc should be converting it
         # instead. The trouble is, we also want to get the metadata
 
-        commandextra = ""
+        extracmd = ""
 
-        if 'theme' in metadata:
-            commandextra = "--variable theme=%s" % metadata['theme']
+        if "theme" in metadata:
+            extracmd = extracmd + " " + "--variable theme=%s" % metadata["theme"]
 
-        if 'revealoptions' in metadata:
-            if 'transition' in metadata['revealoptions']:
-                commandextra = commandextra + " --variable transition=%s" % metadata['revealoptions']['transition']
+        if "revealoptions" in metadata:
+            if "transition" in metadata["revealoptions"]:
+                extracmd = (
+                    extracmd
+                    + " "
+                    + "--variable transition=%s"
+                    % metadata["revealoptions"]["transition"]
+                )
 
-        command  = "pandoc --to revealjs -f markdown %s %s" % (filename, commandextra)
+        command = "pandoc --to revealjs -f markdown  %s %s" % (extracmd, filename)
 
         # Define template for Pelican
         metadata["template"] = "revealmd"
 
-        p = subprocess.Popen(command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = subprocess.Popen(
+            command.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
 
         try:
-            stdout, stderr = p.communicate(str.encode('utf8'))
+            stdout, stderr = p.communicate(str.encode("utf8"))
         except OSError:
-            raise RuntimeError('Pandoc died with exitcode "%s" during conversion.' % p.returncode)
+            raise RuntimeError(
+                'Pandoc died with exitcode "%s" during conversion.' % p.returncode
+            )
 
-        revealjs_content = stdout.decode('utf8')
+        revealjs_content = stdout.decode("utf8")
 
         # Patch revealjs_content to convert 'back' "{" and "}"
-        returntext = revealjs_content.replace('%7B', '{').replace('%7D','}')
+        returntext = revealjs_content.replace("%7B", "{").replace("%7D", "}")
 
         return returntext, metadata
 
