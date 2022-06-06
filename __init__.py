@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import subprocess
 
 from pelican import signals
@@ -44,7 +43,7 @@ class RevealJSMarkdownReader(BaseReader):
                     % metadata["revealoptions"]["transition"]
                 )
 
-        command = "pandoc --to revealjs -f markdown  %s %s" % (extracmd, filename)
+        command = f"pandoc --to revealjs -f markdown  {extracmd} {filename}"
 
         # Define template for Pelican
         metadata["template"] = "revealmd"
